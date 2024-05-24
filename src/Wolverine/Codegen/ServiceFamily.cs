@@ -1,0 +1,97 @@
+using JasperFx.Core.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Wolverine.Codegen;
+
+internal class ServiceFamily
+{
+    public Type ServiceType { get; }
+    public IReadOnlyList<ServiceDescriptor> Services { get; }
+
+    public ServiceFamily(Type serviceType, IEnumerable<ServiceDescriptor> services)
+    {
+        ServiceType = serviceType;
+        Services = services.ToArray();
+    }
+
+    public ServiceDescriptor? Default => Services.LastOrDefault(x => !x.IsKeyedService);
+
+    public ServiceFamily Close(Type[] parameterTypes)
+    {
+        if (!ServiceType.IsOpenGeneric())
+            throw new InvalidOperationException($"{ServiceType.FullNameInCode()} is not an open type");
+        var serviceType = ServiceType.MakeGenericType(parameterTypes);
+        
+        var candidates = Services.Select(open =>
+        {
+            try
+            {
+                var concreteType = ServiceType.MakeGenericType(parameterTypes);
+                if (concreteType.CanBeCastTo(serviceType))
+                {
+                    return new ServiceDescriptor(serviceType, concreteType, open.Lifetime);
+                }
+
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }).Where(x => x != null).ToArray();
+
+        return new ServiceFamily(serviceType, candidates);
+    }
+
+    public virtual ServicePlan? BuildDefaultPlan(ServicePlanGraph graph, List<ServiceDescriptor> trail)
+    {
+        var descriptor = Services.LastOrDefault();
+        if (descriptor == null) return null;
+        
+        return BuildPlan(graph, descriptor, trail);
+    }
+
+    internal ServicePlan BuildPlan(ServicePlanGraph graph, ServiceDescriptor descriptor,
+        List<ServiceDescriptor> trail)
+    {
+        if (trail.Contains(descriptor)) return new InvalidPlan(descriptor);
+        
+        if (descriptor.ServiceType.IsNotPublic)
+        {
+            return new ServiceLocationPlan(descriptor);
+        }
+        
+        if (descriptor.IsKeyedService)
+        {
+            throw new NotSupportedException("Not quite able yet to support keyed implementations");
+        }
+
+        if (descriptor.Lifetime == ServiceLifetime.Singleton)
+        {
+            return new SingletonPlan(descriptor);
+        }
+
+        if (descriptor.ImplementationFactory != null)
+        {
+            return new ServiceLocationPlan(descriptor);
+        }
+        
+        if (!descriptor.ImplementationType.IsConcrete())
+        {
+            throw new ArgumentOutOfRangeException(nameof(descriptor),
+                "Impossible to resolve a descriptor where the implementation is not concrete");
+        }
+
+        if (descriptor.ImplementationType.IsNotPublic)
+        {
+            return new ServiceLocationPlan(descriptor);
+        }
+        
+        if (ConstructorPlan.TryBuildPlan(trail, descriptor, graph, out var plan))
+        {
+            return plan;
+        }
+
+        return new InvalidPlan(descriptor);
+    }
+}

@@ -1,8 +1,12 @@
+using System.Reflection;
 using JasperFx.CodeGeneration;
 using JasperFx.CodeGeneration.Commands;
+using JasperFx.CodeGeneration.Model;
 using JasperFx.Core;
 using JasperFx.Core.Reflection;
 using Lamar;
+using Lamar.IoC;
+using Lamar.IoC.Frames;
 using Lamar.Microsoft.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -11,6 +15,7 @@ using Microsoft.Extensions.ObjectPool;
 using Oakton;
 using Oakton.Descriptions;
 using Oakton.Resources;
+using Wolverine.Codegen;
 using Wolverine.Configuration;
 using Wolverine.Persistence.Durability;
 using Wolverine.Persistence.Sagas;
@@ -81,13 +86,26 @@ public static class HostBuilderExtensions
                 throw new InvalidOperationException(
                     "IHostBuilder.UseWolverine() can only be called once per service collection");
             }
+            
+
 
             services.AddSingleton<WolverineSupplementalCodeFiles>();
             services.AddSingleton<ICodeFileCollection>(x => x.GetRequiredService<WolverineSupplementalCodeFiles>());
 
             services.AddSingleton<IStatefulResource, MessageStoreResource>();
 
-            services.AddTransient(s => s.GetRequiredService<IContainer>().CreateServiceVariableSource());
+            services.AddSingleton<ServicePlanGraph>(s =>
+            {
+                var container = s.GetRequiredService<IContainer>().As<Container>();
+                var graph = (ServiceGraph)typeof(Scope).GetProperty("ServiceGraph", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(container);
+                var services = graph.Services;
+
+                return new ServicePlanGraph(services, container);
+            });
+            
+            // Temporary!
+            //services.AddTransient(s => s.GetRequiredService<IContainer>().CreateServiceVariableSource());
+            services.AddTransient<IServiceVariableSource, ServiceCollectionServerVariableSource>();
 
             services.AddSingleton(s =>
             {

@@ -9,12 +9,12 @@
         <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Wolverine.Postgresql\Wolverine.Postgresql.csproj" />
+        <ProjectReference Include="..\Wolverine.Postgresql\Wolverine.Postgresql.csproj"/>
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Marten.CommandLine" Version="7.12.0" />
+        <PackageReference Include="Marten.CommandLine" Version="7.12.0"/>
     </ItemGroup>
 
 
-    <Import Project="../../../Analysis.Build.props" />
+    <Import Project="../../../Analysis.Build.props"/>
 </Project>
