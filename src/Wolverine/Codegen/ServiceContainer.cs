@@ -30,6 +30,16 @@ internal class ServiceContainer : IServiceProviderIsService
         _provider = provider;
     }
 
+    public IReadOnlyList<ServiceDescriptor> RegistrationsFor(Type serviceType)
+    {
+        return findFamily(serviceType).Services;
+    }
+
+    public T GetInstance<T>() where T : notnull
+    {
+        return _provider.GetRequiredService<T>();
+    }
+
     bool IServiceProviderIsService.IsService(Type serviceType)
     {
         return false;
