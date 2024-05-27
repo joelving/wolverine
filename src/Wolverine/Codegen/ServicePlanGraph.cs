@@ -166,4 +166,34 @@ internal class ServicePlanGraph : IServiceProviderIsService
     {
         return findFamily(variableType).Services.Count > 1;
     }
+    
+    /// <summary>
+    /// Polyfill to make IServiceProvider work like Lamar's ability
+    /// to create unknown concrete types
+    /// </summary>
+    /// <param name="provider"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T QuickBuild<T>()
+    {
+        return (T)QuickBuild(typeof(T));
+    }
+    
+    /// <summary>
+    /// Polyfill to make IServiceProvider work like Lamar's ability
+    /// to create unknown concrete types
+    /// </summary>
+    /// <param name="provider"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public object QuickBuild(Type concreteType)
+    {
+        var constructor = concreteType.GetConstructors().Single();
+        var args = constructor
+            .GetParameters()
+            .Select(x => _provider.GetService(x.ParameterType))
+            .ToArray();
+
+        return Activator.CreateInstance(concreteType, args);
+    }
 }
