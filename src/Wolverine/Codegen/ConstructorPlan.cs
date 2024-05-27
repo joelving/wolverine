@@ -36,7 +36,7 @@ internal class ConstructorPlan : ServicePlan
         return true;
     }
 
-    public static bool TryBuildPlan(List<ServiceDescriptor> trail, ServiceDescriptor descriptor, ServicePlanGraph graph,
+    public static bool TryBuildPlan(List<ServiceDescriptor> trail, ServiceDescriptor descriptor, ServiceContainer graph,
         out ServicePlan plan)
     {
         if (trail.Contains(descriptor))

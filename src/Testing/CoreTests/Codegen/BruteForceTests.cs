@@ -12,7 +12,7 @@ public class BruteForceTests
 {
     private readonly ITestOutputHelper _output;
     private readonly ServiceCollection theServices = new();
-    private readonly ServicePlanGraph theGraph;
+    private readonly ServiceContainer theGraph;
 
     public BruteForceTests(ITestOutputHelper output)
     {
@@ -44,7 +44,7 @@ public class BruteForceTests
          * support keyed services
          */
 
-        theGraph = new ServicePlanGraph(theServices, theServices.BuildServiceProvider());
+        theGraph = new ServiceContainer(theServices, theServices.BuildServiceProvider());
     }
     
     [Theory]

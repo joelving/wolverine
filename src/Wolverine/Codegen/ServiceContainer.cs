@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Wolverine.Codegen;
 
-internal class ServicePlanGraph : IServiceProviderIsService
+internal class ServiceContainer : IServiceProviderIsService
 {
     private readonly IServiceProviderIsService _serviceChecker;
     private ImHashMap<Type, ServicePlan> _defaults = ImHashMap<Type, ServicePlan>.Empty;
@@ -16,7 +16,7 @@ internal class ServicePlanGraph : IServiceProviderIsService
     
     private readonly IServiceProvider _provider;
 
-    public ServicePlanGraph(IServiceCollection services, IServiceProvider provider)
+    public ServiceContainer(IServiceCollection services, IServiceProvider provider)
     {
         var families = services.GroupBy(x => x.ServiceType)
             .Select(x => new ServiceFamily(x.Key, x));

@@ -7,7 +7,7 @@ namespace Wolverine.Codegen;
 
 internal class ServiceCollectionServerVariableSource : IServiceVariableSource
 {
-    private readonly ServicePlanGraph _services;
+    private readonly ServiceContainer _services;
     private bool _usesScopedContainerDirectly;
     private readonly List<StandInVariable> _standins = new();
     private readonly List<InjectedSingleton> _fields = new();
@@ -17,7 +17,7 @@ internal class ServiceCollectionServerVariableSource : IServiceVariableSource
     public const string UsingScopedContainerDirectly = @"Using the scoped provider service location approach
 because at least one dependency is directly using IServiceProvider or has an opaque, scoped or transient Lambda registration";
 
-    public ServiceCollectionServerVariableSource(ServicePlanGraph services)
+    public ServiceCollectionServerVariableSource(ServiceContainer services)
     {
         _services = services;
     }

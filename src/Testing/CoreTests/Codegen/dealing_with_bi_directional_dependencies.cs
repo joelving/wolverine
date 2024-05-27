@@ -10,7 +10,7 @@ public class dealing_with_bi_directional_dependencies
     public void can_slide_around_bi_directional_dependencies()
     {
         var services = new ServiceCollection();
-        var graph = new ServicePlanGraph(services, services.BuildServiceProvider());
+        var graph = new ServiceContainer(services, services.BuildServiceProvider());
         
         graph.CouldResolve(typeof(Bar)).ShouldBeFalse();
         graph.CouldResolve(typeof(Baz)).ShouldBeFalse();

@@ -94,13 +94,13 @@ public static class HostBuilderExtensions
 
             services.AddSingleton<IStatefulResource, MessageStoreResource>();
 
-            services.AddSingleton<ServicePlanGraph>(s =>
+            services.AddSingleton<ServiceContainer>(s =>
             {
                 var container = s.GetRequiredService<IContainer>().As<Container>();
                 var graph = (ServiceGraph)typeof(Scope).GetProperty("ServiceGraph", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(container);
                 var services = graph.Services;
 
-                return new ServicePlanGraph(services, container);
+                return new ServiceContainer(services, container);
             });
             
             // Temporary!

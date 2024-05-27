@@ -16,7 +16,7 @@ internal class ArrayFamily : ServiceFamily
 
     public Type ElementType { get; }
 
-    public override ServicePlan? BuildDefaultPlan(ServicePlanGraph graph, List<ServiceDescriptor> trail)
+    public override ServicePlan? BuildDefaultPlan(ServiceContainer graph, List<ServiceDescriptor> trail)
     {
         var plans = graph.FindAll(ElementType, trail);
         if (plans.All(x => x.Lifetime == ServiceLifetime.Singleton))

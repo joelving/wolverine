@@ -43,7 +43,7 @@ internal class ServiceFamily
         return new ServiceFamily(serviceType, candidates);
     }
 
-    public virtual ServicePlan? BuildDefaultPlan(ServicePlanGraph graph, List<ServiceDescriptor> trail)
+    public virtual ServicePlan? BuildDefaultPlan(ServiceContainer graph, List<ServiceDescriptor> trail)
     {
         var descriptor = Services.LastOrDefault();
         if (descriptor == null) return null;
@@ -51,7 +51,7 @@ internal class ServiceFamily
         return BuildPlan(graph, descriptor, trail);
     }
 
-    internal ServicePlan BuildPlan(ServicePlanGraph graph, ServiceDescriptor descriptor,
+    internal ServicePlan BuildPlan(ServiceContainer graph, ServiceDescriptor descriptor,
         List<ServiceDescriptor> trail)
     {
         if (trail.Contains(descriptor)) return new InvalidPlan(descriptor);
